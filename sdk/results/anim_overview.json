@@ -1,0 +1,29 @@
+{
+  "label": "anim_overview",
+  "target_fps": 60,
+  "device": "/dev/dri/card0",
+  "download_format": "x2rgb10le",
+  "format_changes": 0,
+  "duration_s": 8.808,
+  "samples": 549,
+  "changed_frames": 78,
+  "active_intervals": 70,
+  "idle_gaps": 7,
+  "effective_fps": 57.98,
+  "mean_interval_ms": 17.25,
+  "interval_ms": {
+    "p50": 16.71,
+    "p95": 20.5,
+    "p99": 33.47,
+    "max": 33.6
+  },
+  "jank": {
+    "threshold_ms": 25.0,
+    "count": 3,
+    "ratio": 0.0429,
+    "longest_stall_ms": 33.6
+  },
+  "dropped_frames_est": 3,
+  "mean_abs_diff_avg": 0.383,
+  "notes": []
+}

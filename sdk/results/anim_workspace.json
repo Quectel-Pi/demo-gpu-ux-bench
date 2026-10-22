@@ -1,0 +1,29 @@
+{
+  "label": "anim_workspace",
+  "target_fps": 60,
+  "device": "/dev/dri/card0",
+  "download_format": "x2rgb10le",
+  "format_changes": 0,
+  "duration_s": 8.79,
+  "samples": 548,
+  "changed_frames": 59,
+  "active_intervals": 52,
+  "idle_gaps": 6,
+  "effective_fps": 57.66,
+  "mean_interval_ms": 17.34,
+  "interval_ms": {
+    "p50": 16.75,
+    "p95": 17.07,
+    "p99": 33.11,
+    "max": 33.41
+  },
+  "jank": {
+    "threshold_ms": 25.0,
+    "count": 2,
+    "ratio": 0.0385,
+    "longest_stall_ms": 33.41
+  },
+  "dropped_frames_est": 2,
+  "mean_abs_diff_avg": 1.542,
+  "notes": []
+}

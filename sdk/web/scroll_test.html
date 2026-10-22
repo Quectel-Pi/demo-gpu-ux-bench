@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>GPU Bench - Web Scroll</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #111; color: #eee;
+               font-family: sans-serif; }
+  .block { height: 120px; margin: 8px; border-radius: 8px;
+           box-shadow: 0 4px 12px rgba(0, 0, 0, .6);
+           display: flex; align-items: center; justify-content: center;
+           font-size: 28px; letter-spacing: 2px; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; padding: 8px 12px;
+         background: rgba(0, 0, 0, .75); font-size: 18px; z-index: 10; }
+</style>
+</head>
+<body>
+<div id="hud">初始化…</div>
+<div id="content"></div>
+<script>
+(function () {
+  const params  = new URLSearchParams(location.search);
+  const SECONDS = parseFloat(params.get('seconds') || '10');
+  const PORT    = params.get('port') || '8799';
+  const BLOCKS  = parseInt(params.get('blocks') || '300', 10);
+  const hud     = document.getElementById('hud');
+
+  // 构造长页面：渐变 + 阴影 + 圆角，逼出真实的栅格化/合成负载
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < BLOCKS; i++) {
+    const d = document.createElement('div');
+    d.className = 'block';
+    const h = (i * 37) % 360;
+    d.style.background =
+      'linear-gradient(135deg, hsl(' + h + ',70%,45%), hsl(' + ((h + 60) % 360) + ',70%,25%))';
+    d.textContent = 'BLOCK ' + i;
+    frag.appendChild(d);
+  }
+  document.getElementById('content').appendChild(frag);
+
+  const pct = (sorted, r) => sorted.length ? sorted[Math.round((sorted.length - 1) * r)] : null;
+  const r2  = v => (v === null || v === undefined) ? null : Math.round(v * 100) / 100;
+
+  function report(stats) {
+    // GET 图片请求不受同源/CORS 限制，是最稳的回传方式
+    const img = new Image();
+    img.src = 'http://127.0.0.1:' + PORT + '/report?d=' + encodeURIComponent(JSON.stringify(stats));
+    hud.textContent = 'DONE ' + JSON.stringify(stats).slice(0, 300);
+  }
+
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { setTimeout(measureRefresh, 1500); });
+  });
+
+  // 屏幕实际刷新率估计：用墙钟时间数帧，避免 rAF 时间戳偶发重复导致的估计失真
+  function measureRefresh() {
+    hud.textContent = '测量刷新率…';
+    const t0 = performance.now();
+    let n = 0;
+    function step() {
+      n++;
+      const elapsed = performance.now() - t0;
+      if (elapsed < 500) { requestAnimationFrame(step); } else { done(elapsed); }
+    }
+    function done(elapsed) {
+      let hz = n / (elapsed / 1000);
+      // 估不准时退回面板标称值（本板 DSI 面板为 60Hz）
+      if (!(hz >= 30 && hz <= 144)) hz = 60;
+      startScroll(hz);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function startScroll(refreshHz) {
+    const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    // 目标：SECONDS 秒滚完整页；stepPx 至少 1px，否则浏览器会把亚像素位移取整成 0
+    const stepPx = Math.max(1, maxScroll / (SECONDS * refreshHz));
+    const times = [];
+    const t0 = performance.now();
+    let target = 0;
+
+    function frame(t) {
+      times.push(t);
+      target = Math.min(maxScroll, target + stepPx);
+      window.scrollTo(0, target);
+      const elapsed = (t - t0) / 1000;
+      hud.textContent = '滚动中 ' + elapsed.toFixed(1) + 's / ' + SECONDS + 's  scroll=' +
+                        Math.round(window.scrollY) + 'px';
+      if (elapsed < SECONDS && target < maxScroll) {
+        requestAnimationFrame(frame);
+      } else {
+        finish(times, t0, refreshHz, window.scrollY, maxScroll);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function finish(times, t0, refreshHz, scrolled, maxScroll) {
+    // rAF 时间戳偶发重复（同一帧多次回调），0 间隔会污染统计，先剔除
+    const intervals = [];
+    for (let i = 1; i < times.length; i++) {
+      const d = times[i] - times[i - 1];
+      if (d > 0) intervals.push(d);
+    }
+    const sorted = intervals.slice().sort((a, b) => a - b);
+    const target = 1000 / refreshHz;
+    const jank = intervals.filter(v => v > target * 1.5);
+    const duration = (times[times.length - 1] - times[0]) / 1000;
+
+    report({
+      scene: 'web_scroll',
+      url: location.href,
+      seconds: SECONDS,
+      refresh_hz_est: r2(refreshHz),
+      frames: times.length,
+      duration_s: r2(duration),
+      avg_fps: duration > 0 ? r2(intervals.length / duration) : null,
+      interval_ms: {
+        p50: r2(pct(sorted, 0.50)),
+        p95: r2(pct(sorted, 0.95)),
+        p99: r2(pct(sorted, 0.99)),
+        max: r2(sorted[sorted.length - 1])
+      },
+      jank: {
+        threshold_ms: r2(target * 1.5),
+        count: jank.length,
+        ratio: intervals.length ? r2(jank.length / intervals.length) : null,
+        longest_stall_ms: r2(sorted[sorted.length - 1])
+      },
+      dropped_frames_est: intervals.reduce(
+        (acc, v) => acc + Math.max(0, Math.round(v / target) - 1), 0),
+      scrolled_px: Math.round(scrolled),
+      page_scrollable_px: Math.round(maxScroll),
+      device_pixel_ratio: window.devicePixelRatio,
+      viewport: window.innerWidth + 'x' + window.innerHeight
+    });
+  }
+})();
+</script>
+</body>
+</html>

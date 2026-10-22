@@ -1,0 +1,43 @@
+{
+  "label": "video_stress_mpp",
+  "file": "/opt/gpu-bench/sdk/assets/video_1920x1080_60fps_30s.mp4",
+  "decoder": "mppvideodec",
+  "sink": "waylandsink",
+  "sync": true,
+  "wall_s": 30.03,
+  "frames_rendered": 1708,
+  "frames_dropped": 87,
+  "average_fps": 56.96,
+  "last_message": "rendered: 1686, dropped: 86, fps: 58.30, drop rate: 1.94",
+  "measurements": 58,
+  "measurements_tail": [
+    {
+      "fps": 58.24,
+      "drop_rate": 1.9413,
+      "avg_fps": 56.96
+    },
+    {
+      "fps": 55.97,
+      "drop_rate": 3.9975,
+      "avg_fps": 56.94
+    },
+    {
+      "fps": 58.11,
+      "drop_rate": 1.9369,
+      "avg_fps": 56.96
+    },
+    {
+      "fps": 55.79,
+      "drop_rate": 3.9847,
+      "avg_fps": 56.94
+    },
+    {
+      "fps": 58.3,
+      "drop_rate": 1.9432,
+      "avg_fps": 56.96
+    }
+  ],
+  "eos": true,
+  "error": null,
+  "drop_rate": 0.0485
+}

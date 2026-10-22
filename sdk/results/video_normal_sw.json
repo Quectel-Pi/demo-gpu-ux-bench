@@ -1,0 +1,43 @@
+{
+  "label": "video_normal_sw",
+  "file": "/opt/gpu-bench/sdk/assets/video_1280x800_30fps_60s.mp4",
+  "decoder": "avdec_h264",
+  "sink": "waylandsink",
+  "sync": true,
+  "wall_s": 60.05,
+  "frames_rendered": 1800,
+  "frames_dropped": 0,
+  "average_fps": 30.03,
+  "last_message": "rendered: 1788, dropped: 0, current: 29.99, average: 30.03",
+  "measurements": 114,
+  "measurements_tail": [
+    {
+      "fps": 30.0,
+      "drop_rate": 0.0,
+      "avg_fps": 30.03
+    },
+    {
+      "fps": 29.99,
+      "drop_rate": 0.0,
+      "avg_fps": 30.03
+    },
+    {
+      "fps": 30.0,
+      "drop_rate": 0.0,
+      "avg_fps": 30.03
+    },
+    {
+      "fps": 30.0,
+      "drop_rate": 0.0,
+      "avg_fps": 30.03
+    },
+    {
+      "fps": 29.99,
+      "drop_rate": 0.0,
+      "avg_fps": 30.03
+    }
+  ],
+  "eos": true,
+  "error": null,
+  "drop_rate": 0.0
+}
