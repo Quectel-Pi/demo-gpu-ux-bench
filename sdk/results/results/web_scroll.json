@@ -1,0 +1,27 @@
+{
+  "scene": "web_scroll",
+  "url": "file:///opt/gpu-bench/sdk/web/scroll_test.html?seconds=10&port=8799",
+  "seconds": 10,
+  "refresh_hz_est": 60,
+  "frames": 600,
+  "duration_s": 8.2,
+  "avg_fps": 73.04,
+  "interval_ms": {
+    "p50": 14.64,
+    "p95": 33.04,
+    "p99": 37.22,
+    "max": 47.74
+  },
+  "jank": {
+    "threshold_ms": 25,
+    "count": 83,
+    "ratio": 0.14,
+    "longest_stall_ms": 47.74
+  },
+  "dropped_frames_est": 86,
+  "scrolled_px": 37608,
+  "page_scrollable_px": 37608,
+  "device_pixel_ratio": 1,
+  "viewport": "1280x800",
+  "received_at": "2026-04-14T12:04:02"
+}
